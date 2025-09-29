@@ -28,6 +28,8 @@ const VideoPlayer = () => {
     const handleUnmute = () => videoRef.current && (videoRef.current.muted = false);
     const playbackRates = [0.5, 1, 1.25, 1.5, 2];
     const [playbackRate, setPlaybackRate] = useState(1);
+    const startPoint = 10;
+
 
     const [activeTrack, setActiveTrack] = useState(null);
     const handleFullscreen = () => {
@@ -125,12 +127,38 @@ const VideoPlayer = () => {
         }
     };
     //
-    // // // Ensure playback rate syncs with state on video/source change
-    // useEffect(() => {
-    //     if (videoRef.current) {
-    //         videoRef.current.playbackRate = playbackRate;
-    //     }
-    // }, [playbackRate, currentVideo]);
+    // // Ensure playback rate syncs with state on video/source change
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.playbackRate = playbackRate;
+            if (startPoint) {
+                videoRef.current.currentTime = startPoint;
+                setCurrentTime(startPoint);
+
+            }
+        }
+    }, [playbackRate, currentVideo]);
+
+
+    // --- Forward & Rewind 15s ---
+    const forward = (sec = 15) => {
+        if (videoRef.current) {
+            videoRef.current.currentTime = Math.min(
+                videoRef.current.currentTime + sec,
+                duration
+            );
+        }
+    };
+
+    const rewind = (sec = 15) => {
+        if (videoRef.current) {
+            videoRef.current.currentTime = Math.max(
+                videoRef.current.currentTime - sec,
+                0
+            );
+        }
+    };
+
 
 
     return (
@@ -199,6 +227,16 @@ const VideoPlayer = () => {
                 <button onClick={handleMute}>Mute</button>
                 <button onClick={handleUnmute}>Unmute</button>
                 <button onClick={handleFullscreen}>Fullscreen</button>
+                {/* --- Rewind 15s --- */}
+                <button style={{ marginLeft: "10px" }} onClick={() => rewind(5)}>
+                    « 15s
+                </button>
+                {/* --- Forward 15s --- */}
+                <button style={{ marginLeft: "3px" }} onClick={() => forward(5)}>
+                    15s »
+                </button>
+                {/* --- End Forward/Rewind --- */}
+
                 <label style={{ marginLeft: "10px" }}>
                     Volume
                     <input

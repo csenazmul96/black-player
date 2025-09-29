@@ -1,0 +1,65 @@
+Core Functionalities
+
+Play / Pause
+
+play()
+
+pause()
+
+togglePlayPause()
+
+Seek / Timeline
+
+seekTo(timeInSeconds)
+
+forward(seconds)
+
+rewind(seconds)
+
+Volume Control
+
+setVolume(value: number) (0 → 1)
+
+mute()
+
+unmute()
+
+toggleMute()
+
+Playback Speed
+
+setPlaybackRate(rate: number) (e.g., 0.5x, 1x, 1.5x, 2x)
+
+Fullscreen / Mini Player
+
+enterFullscreen()
+
+exitFullscreen()
+
+toggleFullscreen()
+
+Track & Subtitles
+
+setTrack(trackId)
+
+enableCaptions()
+
+disableCaptions()
+
+Playlist / Source
+
+load(source)
+
+next()
+
+previous()
+
+Misc
+
+getDuration()
+
+getCurrentTime()
+
+getBuffered()
+
+destroy() (cleanup)

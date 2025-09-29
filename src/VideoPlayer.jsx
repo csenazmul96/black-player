@@ -26,6 +26,8 @@ const VideoPlayer = () => {
     const handlePause = () => videoRef.current && videoRef.current.pause();
     const handleMute = () => videoRef.current && (videoRef.current.muted = true);
     const handleUnmute = () => videoRef.current && (videoRef.current.muted = false);
+    const playbackRates = [0.5, 1, 1.25, 1.5, 2];
+    const [playbackRate, setPlaybackRate] = useState(1);
 
     const [activeTrack, setActiveTrack] = useState(null);
     const handleFullscreen = () => {
@@ -115,6 +117,22 @@ const VideoPlayer = () => {
 
     const [currentVideo, setCurrentVideo] = useState(videoList[0]);
 
+    // Update playback rate on change
+    const handlePlaybackRate = (rate) => {
+        if (videoRef.current) {
+            videoRef.current.playbackRate = rate;
+            setPlaybackRate(rate);
+        }
+    };
+    //
+    // // // Ensure playback rate syncs with state on video/source change
+    // useEffect(() => {
+    //     if (videoRef.current) {
+    //         videoRef.current.playbackRate = playbackRate;
+    //     }
+    // }, [playbackRate, currentVideo]);
+
+
     return (
         <div className="video-container" key={currentVideo.src}>
             {videoList.length > 0 && (
@@ -199,6 +217,24 @@ const VideoPlayer = () => {
                 <button disabled style={{ marginLeft: "5px" }}>
                     Total: {formatTime(duration)}
                 </button>
+
+                {/* --- Playback Speed Control --- */}
+                <label style={{ marginLeft: "10px" }}>
+                    Speed
+                    <select
+                        style={{ marginLeft: "5px" }}
+                        value={playbackRate}
+                        onChange={e => handlePlaybackRate(Number(e.target.value))}
+                    >
+                        {playbackRates.map(rate => (
+                            <option key={rate} value={rate}>
+                                {rate}x
+                            </option>
+                        ))}
+                    </select>
+                </label>
+                {/* --- End Playback Speed Control --- */}
+
 
 
 

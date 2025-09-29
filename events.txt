@@ -1,0 +1,51 @@
+⚡ Events You Should Support
+
+(Mapped to native <video> events, but React-friendly)
+
+Playback State
+
+onPlay
+
+onPause
+
+onEnded
+
+onWaiting (buffering starts)
+
+onCanPlay (buffering ends, can play)
+
+onPlaying
+
+onSeeking
+
+onSeeked
+
+Progress & Time
+
+onTimeUpdate (fires as playback position updates)
+
+onDurationChange (when metadata loads)
+
+onProgress (buffering progress)
+
+Volume & Rate
+
+onVolumeChange
+
+onRateChange
+
+Errors & Metadata
+
+onError
+
+onLoadedMetadata
+
+onLoadedData
+
+User Interaction (Optional)
+
+onClick (click on player)
+
+onDoubleClick (toggle fullscreen)
+
+onKeyDown (keyboard shortcuts)

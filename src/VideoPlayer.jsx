@@ -203,7 +203,22 @@ const VideoPlayer = () => {
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
                 preload="auto"
+                onEnded={() => console.log("Video ended!")}
+                onWaiting={() => console.log("Video is waiting!")}
+                onCanPlay={() => console.log("Video can play!")}
+                onPlay={() => console.log("Video is playing!")}
+                onSeeking={() => console.log("Video is seeking!")}
+                onSeeked={() => console.log("Video seeked!")}
+                onDurationChange={() => console.log("Video duration changed!")}
+                onProgress={() => console.log("Video progress!")}
+                onVolumeChange={() => console.log("Video volume changed!")}
+                onRateChange={() => console.log("Video rate changed!")}
                 poster="//vjs.zencdn.net/v/oceans.png"
+                onError={() => console.log("Video error!")}
+                onLoadedMetadataCapture={() => console.log("Video loaded metadata!")}
+                onDoubleClick={() => console.log("Video double clicked!")}
+                onContextMenu={() => console.log("Video context menu!")}
+                onKeyDown={(e) => console.log(e.key)}
                 data-setup='{}'>
                 <source src={currentVideo.src} type={currentVideo.type} />
 

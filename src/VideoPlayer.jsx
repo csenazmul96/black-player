@@ -159,6 +159,22 @@ const VideoPlayer = () => {
         }
     };
 
+    const handleNextVideo = () => {
+        setCurrentVideo(prev => {
+            const idx = videoList.findIndex(v => v.src === prev.src);
+            const nextIdx = (idx + 1) % videoList.length;
+            return videoList[nextIdx];
+        });
+    };
+
+    const handlePrevVideo = () => {
+        setCurrentVideo(prev => {
+            const idx = videoList.findIndex(v => v.src === prev.src);
+            const prevIdx = (idx - 1 + videoList.length) % videoList.length;
+            return videoList[prevIdx];
+        });
+    };
+
 
 
     return (
@@ -293,6 +309,9 @@ const VideoPlayer = () => {
                     </button>
 
                 </div>
+                <button onClick={handlePrevVideo} style={{ marginLeft: "10px" }}>Previous</button>
+                <button onClick={handleNextVideo} style={{ marginLeft: "5px" }}>Next</button>
+
             </div>
         </div>
     );

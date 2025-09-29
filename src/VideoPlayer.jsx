@@ -7,11 +7,27 @@ const VideoPlayer = () => {
     const [volume, setVolume] = useState(1);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
+    const [subtitleTracks, setSubtitleTracks] = useState([
+        {
+            label: "English",
+            language: "en",
+            mode: false,
+            src: "/subtitle.vtt"
+        },
+        {
+            label: "France",
+            language: "fra",
+            mode: false,
+            src: "/subtitle.vtt"
+        }
+    ]);
 
     const handlePlay = () => videoRef.current && videoRef.current.play();
     const handlePause = () => videoRef.current && videoRef.current.pause();
     const handleMute = () => videoRef.current && (videoRef.current.muted = true);
     const handleUnmute = () => videoRef.current && (videoRef.current.muted = false);
+
+    const [activeTrack, setActiveTrack] = useState(null);
     const handleFullscreen = () => {
         if (videoRef.current) {
             if (videoRef.current.requestFullscreen) {
@@ -50,6 +66,35 @@ const VideoPlayer = () => {
         setCurrentTime(time);
     };
 
+
+    const handleSubtitleSelect = (idx) => {
+        const tracks = videoRef.current.textTracks;
+
+        for (let i = 0; i < tracks.length; i++) {
+            tracks[i].mode = (i === idx ? "showing" : "disabled");
+        }
+
+        setActiveTrack(idx >= 0 ? idx : null);
+    };
+
+    const handleToggleSubtitle = () => {
+        const tracks = videoRef.current.textTracks;
+        if (activeTrack === null) {
+            // No active subtitle. Turn on the first track (or default to index 0)
+            if (tracks.length > 0) {
+                tracks[0].mode = "showing";
+                setActiveTrack(0);
+            }
+        } else {
+            // Disable all
+            for (let i = 0; i < tracks.length; i++) {
+                tracks[i].mode = "disabled";
+            }
+            setActiveTrack(null);
+        }
+    };
+
+
     return (
         <div className="video-container">
             <video
@@ -62,7 +107,16 @@ const VideoPlayer = () => {
                 preload="auto"
                 poster="//vjs.zencdn.net/v/oceans.png"
                 data-setup='{}'>
-                <source src="//vjs.zencdn.net/v/oceans.mp4" type="video/mp4"></source>
+                <source src="//vjs.zencdn.net/v/oceans.mp4" type="video/mp4" />
+                {subtitleTracks.map((subtitle, idx) => (
+                    <track
+                        key={`track-${idx}`}
+                        label={subtitle.label}
+                        kind="subtitles"
+                        src={subtitle.src}
+                        srcLang={subtitle.language}
+                    />
+                ))}
                 <p className="vjs-no-js">
                     To view this video please enable JavaScript, and consider upgrading to a
                     web browser that
@@ -108,6 +162,26 @@ const VideoPlayer = () => {
                 <button disabled style={{ marginLeft: "5px" }}>
                     Total: {formatTime(duration)}
                 </button>
+
+
+
+                <div style={{ display: "inline-block", marginLeft: "10px" }}>
+                    <select style={{ marginLeft: "10px" }} onChange={e => handleSubtitleSelect(Number(e.target.value))}>
+                        {subtitleTracks.map((track, idx) => (
+                            <option key={track.language || idx}
+                                    value={idx}>
+                                {track.label || track.language || `Subtitle ${idx + 1}`}
+                            </option>
+                        ))}
+                    </select>
+                    <button
+                        style={{ marginLeft: "8px" }}
+                        onClick={handleToggleSubtitle}
+                    >
+                        {activeTrack === null ? "Start Subtitle" : "Stop Subtitle"}
+                    </button>
+
+                </div>
             </div>
         </div>
     );

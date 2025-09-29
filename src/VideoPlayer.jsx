@@ -3,6 +3,8 @@ import React, {useEffect, useRef, useState} from "react";
  import "video.js/dist/video-js.css";
 
 const VideoPlayer = () => {
+    const [error, setError] = useState(false);
+
     const videoRef = useRef(null);
     const [volume, setVolume] = useState(1);
     const [currentTime, setCurrentTime] = useState(0);
@@ -115,6 +117,11 @@ const VideoPlayer = () => {
             type: "video/mp4",
             label: "101510-video-720 (1)"
         },
+        {
+            src: "https://media.istockphoto.com/id/1629519562/video/sun-rise-on-the-tokyo-skyline.mp4?s=mp4-640x640-is&k=20&c=fUEKlbroASB7FdCohpnGlsjyGosXxffvu16FWy0jaHs=",
+            type: "video/mp4",
+            label: "Long Video"
+        },
     ]);
 
     const [currentVideo, setCurrentVideo] = useState(videoList[0]);
@@ -175,6 +182,19 @@ const VideoPlayer = () => {
         });
     };
 
+    const handleVideoError = () => {
+        setError(true);
+    };
+    const handleRetry = () => {
+        setError(false);
+        if (videoRef.current) {
+            // Reload video
+            // Changing key forces a reload in some browsers, or you can reset src to the same value
+            videoRef.current.load();
+            // Optionally, auto-play after retry
+            videoRef.current.play().catch(() => {});
+        }
+    };
 
 
     return (
@@ -200,6 +220,7 @@ const VideoPlayer = () => {
                 id="my-player"
                 className="video-js"
                 controls
+                onPause={() => console.log("Video paused!")}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
                 preload="auto"
@@ -214,12 +235,16 @@ const VideoPlayer = () => {
                 onVolumeChange={() => console.log("Video volume changed!")}
                 onRateChange={() => console.log("Video rate changed!")}
                 poster="//vjs.zencdn.net/v/oceans.png"
-                onError={() => console.log("Video error!")}
+                onError={handleVideoError}
                 onLoadedMetadataCapture={() => console.log("Video loaded metadata!")}
                 onDoubleClick={() => console.log("Video double clicked!")}
                 onContextMenu={() => console.log("Video context menu!")}
                 onKeyDown={(e) => console.log(e.key)}
-                data-setup='{}'>
+                onMouseDown={() => console.log("Video mouse down!")}
+                onMouseUp={() => console.log("Video mouse up!")}
+                onMouseOver={() => console.log("Video mouse over!")}
+                onMouseLeave={() => console.log("Video mouse Leave!")}
+                >
                 <source src={currentVideo.src} type={currentVideo.type} />
 
                 {subtitleTracks.map((subtitle, idx) => (
@@ -326,6 +351,12 @@ const VideoPlayer = () => {
                 </div>
                 <button onClick={handlePrevVideo} style={{ marginLeft: "10px" }}>Previous</button>
                 <button onClick={handleNextVideo} style={{ marginLeft: "5px" }}>Next</button>
+                {error && (
+                    <div style={{ color: "red", margin: "16px 0" }}>
+                        <div>Failed to load video.</div>
+                        <button onClick={handleRetry}>Retry</button>
+                    </div>
+                )}
 
             </div>
         </div>

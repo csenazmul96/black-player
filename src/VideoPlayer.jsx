@@ -94,9 +94,45 @@ const VideoPlayer = () => {
         }
     };
 
+    // New: State for selected video
+    const [videoList, setVideoList] = useState([
+        {
+            src: "//vjs.zencdn.net/v/oceans.mp4",
+            type: "video/mp4",
+            label: "Default Video",
+        },
+        {
+            src: "/video.mp4",
+            type: "video/mp4",
+            label: "Video"
+        },
+        {
+            src: "/101510-video-720 (1).mp4",
+            type: "video/mp4",
+            label: "101510-video-720 (1)"
+        },
+    ]);
+
+    const [currentVideo, setCurrentVideo] = useState(videoList[0]);
 
     return (
-        <div className="video-container">
+        <div className="video-container" key={currentVideo.src}>
+            {videoList.length > 0 && (
+                <div style={{ marginBottom: "15px" }}>
+                    <label>
+                        <select
+                            onChange={e => setCurrentVideo(videoList[Number(e.target.value)])}
+                        >
+                            {videoList.map((v, idx) => (
+                                <option value={idx} key={v.src || idx}>
+                                    {v.label || v.src || `Video ${idx + 1}`}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                </div>
+            )}
+
             <video
                 ref={videoRef}
                 id="my-player"
@@ -107,7 +143,8 @@ const VideoPlayer = () => {
                 preload="auto"
                 poster="//vjs.zencdn.net/v/oceans.png"
                 data-setup='{}'>
-                <source src="//vjs.zencdn.net/v/oceans.mp4" type="video/mp4" />
+                <source src={currentVideo.src} type={currentVideo.type} />
+
                 {subtitleTracks.map((subtitle, idx) => (
                     <track
                         key={`track-${idx}`}

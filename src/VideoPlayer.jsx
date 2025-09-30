@@ -1,111 +1,203 @@
 'use client'
-import React, {useEffect, useRef, useState} from "react";
-import {Loader, Loader2, Pause} from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Loader } from "lucide-react";
 import { IoMdPlay } from "react-icons/io";
-import {RiLoader5Fill} from "react-icons/ri";
+import { RiLoader5Fill } from "react-icons/ri";
+import {
+    FaPlay, FaPause, FaVolumeMute, FaVolumeUp, FaExpand, FaStepBackward, FaStepForward, FaForward, FaBackward
+} from "react-icons/fa";
+import { MdSubtitles } from "react-icons/md";
 
+// Controller component for clarity
+const PlayerController = ({
+                              isVisible,
+                              isPlaying,
+                              handlePlay,
+                              handlePause,
+                              handleMute,
+                              handleUnmute,
+                              handleFullscreen,
+                              formatTime,
+                              handleVolume,
+                              volume,
+                              isMuted,
+                              currentTime,
+                              duration,
+                              handleSeek,
+                              playbackRate,
+                              handlePlaybackRate,
+                              playbackRates,
+                              rewind,
+                              forward,
+                              subtitleTracks,
+                              handleSubtitleSelect,
+                              handleToggleSubtitle,
+                              activeTrack,
+                              handlePrevVideo,
+                              handleNextVideo,
+                              error,
+                              handleRetry,
+                          }) => (
+    <div
+        className={`
+      absolute bottom-0 left-0 right-0 w-full z-20
+      transition-opacity duration-150
+      pointer-events-none
+      ${isVisible ? "opacity-100" : "opacity-0"}
+      flex flex-col
+    `}
+        style={{
+            background: 'linear-gradient(0deg, rgba(0,0,0,0.67) 70%, rgba(0,0,0,0.24) 97%,transparent 100%)'
+        }}
+    >
+        {/* Progress Bar */}
+        <input
+            className="w-full mb-1 accent-yellow-500 pointer-events-auto"
+            type="range"
+            min="0"
+            max={duration}
+            value={currentTime}
+            step="0.1"
+            onChange={handleSeek}
+            style={{ height: 6 }}
+        />
+
+        <div className="flex items-center gap-2 px-2 py-1 text-white text-base pointer-events-auto">
+            <div className="flex items-center gap-2">
+                <button
+                    onClick={isPlaying ? handlePause : handlePlay}
+                    className="hover:text-yellow-400 px-2 focus:outline-none"
+                    title={isPlaying ? "Pause" : "Play"}
+                >
+                    {isPlaying ? <FaPause size={19} /> : <FaPlay size={19} />}
+                </button>
+                {/*<button onClick={handlePlay} className="hover:text-red-500"><IoMdPlay size={20} className={'text-white'} /></button>*/}
+                <button onClick={handlePause} className="hover:text-red-500">Pause</button>
+                <button onClick={handleMute} className="hover:text-red-500">Mute</button>
+                <button
+                    onClick={isMuted || volume === 0 ? handleUnmute : handleMute}
+                    className="ml-3 px-1 hover:text-yellow-400"
+                    title={isMuted || volume === 0 ? "Unmute" : "Mute"}
+                >
+                    {isMuted || volume === 0 ? <FaVolumeMute size={18} /> : <FaVolumeUp size={18} />}
+                </button>
+                <button
+                    onClick={handleFullscreen}
+                    className="ml-3 px-1 hover:text-yellow-400"
+                    title="Fullscreen"
+                >
+                    <FaExpand size={17} />
+                </button>
+                <button
+                    onClick={() => rewind(10)}
+                    className="hover:text-yellow-400 px-1"
+                    title="Rewind 10s"
+                >
+                    <FaBackward size={17} />
+                </button>
+                <button
+                    onClick={() => forward(10)}
+                    className="hover:text-yellow-400 px-1"
+                    title="Forward 10s"
+                >
+                    <FaForward size={17} />
+                </button>
+            </div>
+            <div className="flex items-center gap-2 min-w-[160px] justify-end flex-wrap">
+                <label className="flex items-center gap-1">
+                    Vol
+                    <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={volume}
+                        onChange={e => handleVolume(Number(e.target.value))}
+                        className="accent-yellow-500 ml-1"
+                        style={{ width: 65, verticalAlign: "middle" }}
+                    />
+                </label>
+                {/* 6: Time */}
+                <span className="ml-2 text-sm select-none" style={{ minWidth: 64, letterSpacing: 1 }}>
+                {formatTime(currentTime)} <span className="opacity-60">/</span> {formatTime(duration)}
+              </span>
+                {/* Playback Speed */}
+                <select
+                    className="ml-3 bg-black/70 text-xs text-white rounded px-1 py-px border border-gray-600 focus:outline-none"
+                    value={playbackRate}
+                    onChange={e => handlePlaybackRate(Number(e.target.value))}
+                >
+                    {playbackRates.map(rate => (
+                        <option key={rate} value={rate}>
+                            {rate}x
+                        </option>
+                    ))}
+                </select>
+
+                {/* 7: Subtitles */}
+                <button
+                    onClick={handleToggleSubtitle}
+                    className={`ml-2 px-1 ${activeTrack !== null ? "text-yellow-400" : "text-white"} hover:text-yellow-400`}
+                    title="Toggle subtitles"
+                >
+                    <MdSubtitles size={21} />
+                </button>
+                <select
+                    onChange={e => handleSubtitleSelect(Number(e.target.value))}
+                    className="bg-black/70 text-xs text-white rounded ml-1 px-1 py-px border border-gray-600 focus:outline-none"
+                    value={activeTrack ?? ""}
+                >
+                    <option value="">None</option>
+                    {subtitleTracks.map((track, idx) => (
+                        <option key={track.language || idx} value={idx}>
+                            {track.label || track.language || `Subtitle ${idx + 1}`}
+                        </option>
+                    ))}
+                </select>
+
+                <button
+                    onClick={handlePrevVideo}
+                    className="hover:text-yellow-400 px-1"
+                    title="Previous"
+                >
+                    <FaStepBackward size={15} />
+                </button>
+                <button
+                    onClick={handleNextVideo}
+                    className="hover:text-yellow-400 px-1"
+                    title="Next"
+                >
+                    <FaStepForward size={15} />
+                </button>
+            </div>
+            {error && (
+                <div className="ml-4 min-w-[100px] text-red-400 inline-flex items-center">
+                    <span className="text-xs">Error</span>
+                    <button onClick={handleRetry} className="ml-2 underline text-xs">Retry</button>
+                </div>
+            )}
+        </div>
+    </div>
+);
 
 const VideoPlayer = () => {
     const [error, setError] = useState(false);
-
     const videoRef = useRef(null);
     const [volume, setVolume] = useState(1);
     const [currentTime, setCurrentTime] = useState(0);
     const [play, setPlay] = useState("");
     const [duration, setDuration] = useState(0);
     const [subtitleTracks, setSubtitleTracks] = useState([
-        {
-            label: "English",
-            language: "en",
-            mode: false,
-            src: "/subtitle.vtt"
-        },
-        {
-            label: "France",
-            language: "fra",
-            mode: false,
-            src: "/subtitle.vtt"
-        }
+        { label: "English", language: "en", mode: false, src: "/subtitle.vtt" },
+        { label: "France", language: "fra", mode: false, src: "/subtitle.vtt" }
     ]);
-
-    const handlePlay = () => videoRef.current && videoRef.current.play();
-    const handlePause = () => videoRef.current && videoRef.current.pause();
-    const handleMute = () => videoRef.current && (videoRef.current.muted = true);
-    const handleUnmute = () => videoRef.current && (videoRef.current.muted = false);
-    const playbackRates = [0.5, 1, 1.25, 1.5, 2];
     const [playbackRate, setPlaybackRate] = useState(1);
+    const playbackRates = [0.5, 1, 1.25, 1.5, 2];
     const startPoint = 10;
-
-
     const [activeTrack, setActiveTrack] = useState(null);
-    const handleFullscreen = () => {
-        if (videoRef.current) {
-            if (videoRef.current.requestFullscreen) {
-                videoRef.current.requestFullscreen();
-            }
-        }
-    };
-    const formatTime = (seconds) => {
-        const m = Math.floor(seconds / 60);
-        const s = Math.floor(seconds % 60);
-        return `${m}:${s.toString().padStart(2, "0")}`;
-    };
-    const handleVolume = (v) => {
-        if (videoRef.current) {
-            videoRef.current.volume = v;
-            videoRef.current.muted = v === 0;
-            setVolume(v);
-        }
-    };
 
-    const handleTimeUpdate = () => {
-        if (videoRef.current) {
-            setCurrentTime(videoRef.current.currentTime);
-        }
-    };
-    const handleLoadedMetadata = () => {
-        if (videoRef.current) {
-            setDuration(videoRef.current.duration);
-        }
-    };
-    const handleSeek = (e) => {
-        const time = Number(e.target.value);
-        if (videoRef.current) {
-            videoRef.current.currentTime = time;
-        }
-        setCurrentTime(time);
-    };
-
-
-    const handleSubtitleSelect = (idx) => {
-        const tracks = videoRef.current.textTracks;
-
-        for (let i = 0; i < tracks.length; i++) {
-            tracks[i].mode = (i === idx ? "showing" : "disabled");
-        }
-
-        setActiveTrack(idx >= 0 ? idx : null);
-    };
-
-    const handleToggleSubtitle = () => {
-        const tracks = videoRef.current.textTracks;
-        if (activeTrack === null) {
-            // No active subtitle. Turn on the first track (or default to index 0)
-            if (tracks.length > 0) {
-                tracks[0].mode = "showing";
-                setActiveTrack(0);
-            }
-        } else {
-            // Disable all
-            for (let i = 0; i < tracks.length; i++) {
-                tracks[i].mode = "disabled";
-            }
-            setActiveTrack(null);
-        }
-    };
-
-    // New: State for selected video
-    const [videoList, setVideoList] = useState([
+    // --- VIDEO LIST / STATE ---
+    const [videoList] = useState([
         {
             src: "//vjs.zencdn.net/v/oceans.mp4",
             type: "video/mp4",
@@ -127,31 +219,87 @@ const VideoPlayer = () => {
             label: "Long Video"
         },
     ]);
-
     const [currentVideo, setCurrentVideo] = useState(videoList[0]);
 
-    // Update playback rate on change
+    // --- HOVER STATE FOR CONTROLLER ---
+    const [isControlVisible, setIsControlVisible] = useState(false);
+    const controlTimeout = useRef();
+
+    // Show controls on mouse movement/hover, hide after a short delay
+    const handlePlayerMouseMove = () => {
+        clearTimeout(controlTimeout.current);
+        setIsControlVisible(true);
+        controlTimeout.current = setTimeout(() => setIsControlVisible(false), 1800);
+    };
+    const handlePlayerMouseLeave = () => {
+        clearTimeout(controlTimeout.current);
+        setIsControlVisible(false);
+    };
+    useEffect(() => () => clearTimeout(controlTimeout.current), []);
+
+    // ---- All Handlers / Formatters -------------
+    const handlePlay = () => videoRef.current && videoRef.current.play();
+    const handlePause = () => videoRef.current && videoRef.current.pause();
+    const handleMute = () => videoRef.current && (videoRef.current.muted = true);
+    const handleUnmute = () => videoRef.current && (videoRef.current.muted = false);
+    const handleFullscreen = () => {
+        if (videoRef.current?.requestFullscreen) videoRef.current.requestFullscreen();
+    };
+    const formatTime = (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m}:${s.toString().padStart(2, "0")}`;
+    };
+    const handleVolume = (v) => {
+        if (videoRef.current) {
+            videoRef.current.volume = v;
+            videoRef.current.muted = v === 0;
+            setVolume(v);
+        }
+    };
+    const handleTimeUpdate = () => {
+        if (videoRef.current) setCurrentTime(videoRef.current.currentTime);
+    };
+    const handleLoadedMetadata = () => {
+        if (videoRef.current) setDuration(videoRef.current.duration);
+    };
+    const handleSeek = (e) => {
+        const time = Number(e.target.value);
+        if (videoRef.current) videoRef.current.currentTime = time;
+        setCurrentTime(time);
+    };
+    const handleSubtitleSelect = (idx) => {
+        const tracks = videoRef.current.textTracks;
+        for (let i = 0; i < tracks.length; i++) {
+            tracks[i].mode = (i === idx ? "showing" : "disabled");
+        }
+        setActiveTrack(idx >= 0 ? idx : null);
+    };
+    const handleToggleSubtitle = () => {
+        const tracks = videoRef.current.textTracks;
+        if (activeTrack === null && tracks.length > 0) {
+            tracks[0].mode = "showing";
+            setActiveTrack(0);
+        } else {
+            for (let i = 0; i < tracks.length; i++) tracks[i].mode = "disabled";
+            setActiveTrack(null);
+        }
+    };
     const handlePlaybackRate = (rate) => {
         if (videoRef.current) {
             videoRef.current.playbackRate = rate;
             setPlaybackRate(rate);
         }
     };
-    //
-    // // Ensure playback rate syncs with state on video/source change
     useEffect(() => {
         if (videoRef.current) {
             videoRef.current.playbackRate = playbackRate;
             if (startPoint) {
                 videoRef.current.currentTime = startPoint;
                 setCurrentTime(startPoint);
-
             }
         }
     }, [playbackRate, currentVideo]);
-
-
-    // --- Forward & Rewind 15s ---
     const forward = (sec = 15) => {
         if (videoRef.current) {
             videoRef.current.currentTime = Math.min(
@@ -160,7 +308,6 @@ const VideoPlayer = () => {
             );
         }
     };
-
     const rewind = (sec = 15) => {
         if (videoRef.current) {
             videoRef.current.currentTime = Math.max(
@@ -169,168 +316,91 @@ const VideoPlayer = () => {
             );
         }
     };
-
     const handleNextVideo = () => {
         setCurrentVideo(prev => {
             const idx = videoList.findIndex(v => v.src === prev.src);
-            const nextIdx = (idx + 1) % videoList.length;
-            return videoList[nextIdx];
+            return videoList[(idx + 1) % videoList.length];
         });
     };
-
     const handlePrevVideo = () => {
         setCurrentVideo(prev => {
             const idx = videoList.findIndex(v => v.src === prev.src);
-            const prevIdx = (idx - 1 + videoList.length) % videoList.length;
-            return videoList[prevIdx];
+            return videoList[(idx - 1 + videoList.length) % videoList.length];
         });
     };
-
-    const handleVideoError = () => {
-        setError(true);
-    };
+    const handleVideoError = () => setError(true);
     const handleRetry = () => {
         setError(false);
         if (videoRef.current) {
-            // Reload video
-            // Changing key forces a reload in some browsers, or you can reset src to the same value
             videoRef.current.load();
-            // Optionally, auto-play after retry
             videoRef.current.play().catch(() => {});
         }
     };
-
-
-    // Custom player controls
-    const onCustomWaiting = (e) => {
-        setPlay("waiting");
-    }
-    const onCustomEnded = (e) => {
-        setPlay("play");
-    }
-    const onCustomPlaying = (e) => {
-        setPlay("playing");
-    }
-    const onCustomPause = (e) => {
-        setPlay("play");
-    }
-    const onCanPlay = (e) => {
-        setPlay("play");
-    }
-    const onCustomPlay = (e) => {
-
-    }
-    const onCustomSeeking = (e) => {
-
-    }
-    const onCustomSeeked = (e) => {
-
-    }
-    const onCustomDurationChange = (e) => {
-
-    }
-    const onCustomProgress = (e) => {
-
-    }
-    const onCustomVolumeChange = (e) => {
-
-    }
-    const onCustomRateChange = (e) => {
-
-    }
-    const onCustomLoadedMetadataCapture = (e) => {
-
-    }
-    const onCustomDoubleClick = (e) => {
-
-    }
-    const onCustomContextMenu = (e) => {
-
-    }
-    const onCustomKeyDown = (e) => {
-
-    }
-    const onCustomMouseDown = (e) => {
-
-    }
-    const onCustomMouseUp = (e) => {
-
-    }
-    const onCustomMouseOver = (e) => {
-
-    }
-    const onCustomMouseLeave = (e) => {
-
-    }
+    // --- UI for play button overlay ---
+    // ... existing play overlay code from your sample for brevity
 
     return (
         <div>
             {videoList.length > 0 && (
-                <div style={{marginBottom: "15px"}}>
-                    <label>
-                        <select
-                            onChange={e => setCurrentVideo(videoList[Number(e.target.value)])}
-                        >
-                            {videoList.map((v, idx) => (
-                                <option value={idx} key={v.src || idx}>
-                                    {v.label || v.src || `Video ${idx + 1}`}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
+                <div className="mb-4">
+                    <select
+                        onChange={e => setCurrentVideo(videoList[Number(e.target.value)])}
+                        className="px-2 py-1 bg-gray-100 rounded"
+                    >
+                        {videoList.map((v, idx) => (
+                            <option value={idx} key={v.src || idx}>
+                                {v.label || v.src || `Video ${idx + 1}`}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             )}
-            <div className="w-max relative" key={currentVideo.src}>
-
+            <div
+                className="relative group w-max rounded overflow-hidden bg-black/80"
+                style={{ maxWidth: 640, minWidth: 320 }}
+                onMouseMove={handlePlayerMouseMove}
+                onMouseLeave={handlePlayerMouseLeave}
+                tabIndex={0} // for keyboard focus-out hiding controls
+            >
+                {/* Play overlay (unchanged, shortened for brevity) */}
                 <div className="z-10 black_player_play_button cursor-pointer justify-center items-center absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" >
-                    {play === "waiting" &&
+                    {play === "pause" &&
                         <button className="w-[100px] z-10 h-[100px] rounded-full bg-black/60 backdrop-blur-lg flex items-center justify-center ">
-                            <Loader className={'text-red-800 h-6 w-6 animate-spin '} size={40}  />
+                            <IoPauseOutline className={'text-red-700 h-6 w-6 animate-spin '} size={40} />
                         </button>
                     }
-                    <RiLoader5Fill className={'text-red-700 h-6 w-6 animate-spin '} size={40} />
+
                     {play === "play" &&
                         <button onClick={handlePlay} className="w-[100px] z-10 h-[100px] rounded-full bg-black/60 backdrop-blur-lg flex items-center justify-center ">
                             <IoMdPlay className={'text-red-800'} size={40} strokeWidth={1} />
                         </button>
                     }
 
-
-
+                    {play === "waiting" &&
+                        <button onClick={handlePlay} className="w-[100px] z-10 h-[100px] rounded-full bg-black/60 backdrop-blur-lg flex items-center justify-center ">
+                            <RiLoader5Fill className={'text-red-800'} size={40} strokeWidth={1} />
+                        </button>
+                    }
                 </div>
-
+                {/* VIDEO element */}
                 <video
                     ref={videoRef}
+                    onClick={handlePause}
                     id="black-player"
-                    className="video-js"
-                    onPause={onCustomPause}
-                    onPlaying={onCustomPlaying}
+                    className="w-full h-auto block"
+                    onPause={() => setPlay("play")}
+                    onPlaying={() => setPlay("playing")}
                     onTimeUpdate={handleTimeUpdate}
                     onLoadedMetadata={handleLoadedMetadata}
                     preload="auto"
-                    onEnded={onCustomEnded}
-                    onWaiting={onCustomWaiting}
-                    onCanPlay={onCanPlay}
-                    onPlay={onCustomPlay}
-                    onSeeking={onCustomSeeking}
-                    onSeeked={onCustomSeeked}
-                    onDurationChange={onCustomDurationChange}
-                    onProgress={onCustomProgress}
-                    onVolumeChange={onCustomVolumeChange}
-                    onRateChange={onCustomRateChange}
+                    onEnded={() => setPlay("play")}
+                    onWaiting={() => setPlay("waiting")}
+                    onCanPlay={() => setPlay("play")}
                     poster="//vjs.zencdn.net/v/oceans.png"
                     onError={handleVideoError}
-                    onLoadedMetadataCapture={onCustomLoadedMetadataCapture}
-                    onDoubleClick={onCustomDoubleClick}
-                    onContextMenu={onCustomContextMenu}
-                    onKeyDown={onCustomKeyDown}
-                    onMouseDown={onCustomMouseDown}
-                    onMouseUp={onCustomMouseUp}
-                    onMouseOver={onCustomMouseOver}
-                    onMouseLeave={onCustomMouseLeave}
+                    tabIndex={0}
                 >
-                    <source src={currentVideo.src} type={currentVideo.type}/>
-
+                    <source src={currentVideo.src} type={currentVideo.type} />
                     {subtitleTracks.map((subtitle, idx) => (
                         <track
                             key={`track-${idx}`}
@@ -340,120 +410,44 @@ const VideoPlayer = () => {
                             srcLang={subtitle.language}
                         />
                     ))}
-                    <p className="vjs-no-js">
-                        To view this video please enable JavaScript, and consider upgrading to a
-                        web browser that
-                        <a href="https://videojs.com/html5-video-support/" target="_blank">
-                            supports HTML5 video
-                        </a>
+                    <p>
+                        To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
                     </p>
                 </video>
-            </div>
-
-            <div className={"black_player_progress_outer"}>
-                <input
-                    className="black_player_progress_controller"
-                    type="range"
-                    min="0"
-                    max={duration}
-                    value={currentTime}
-                    step="0.1"
-                    onChange={handleSeek}
-
+                {/* --- CONTROLLER Overlay --- */}
+                <PlayerController
+                    isVisible={isControlVisible}
+                    handlePlay={handlePlay}
+                    handlePause={handlePause}
+                    handleMute={handleMute}
+                    handleUnmute={handleUnmute}
+                    handleFullscreen={handleFullscreen}
+                    formatTime={formatTime}
+                    handleVolume={handleVolume}
+                    volume={volume}
+                    currentTime={currentTime}
+                    duration={duration}
+                    playbackRate={playbackRate}
+                    handlePlaybackRate={handlePlaybackRate}
+                    playbackRates={playbackRates}
+                    rewind={rewind}
+                    forward={forward}
+                    subtitleTracks={subtitleTracks}
+                    handleSubtitleSelect={handleSubtitleSelect}
+                    handleToggleSubtitle={handleToggleSubtitle}
+                    activeTrack={activeTrack}
+                    handlePrevVideo={handlePrevVideo}
+                    handleNextVideo={handleNextVideo}
+                    error={error}
+                    handleRetry={handleRetry}
                 />
-            </div>
-            <div className="player-controller">
-                <button onClick={handlePlay}>Play</button>
-                <button onClick={handlePause}>Pause</button>
-                <button onClick={handleMute}>Mute</button>
-                <button onClick={handleUnmute}>Unmute</button>
-                <button onClick={handleFullscreen}>Fullscreen</button>
-                {/* --- Rewind 15s --- */}
-                <button style={{marginLeft: "10px"}} onClick={() => rewind(5)}>
-                    « 15s
-                </button>
-                {/* --- Forward 15s --- */}
-                <button style={{marginLeft: "3px"}} onClick={() => forward(5)}>
-                    15s »
-                </button>
-                {/* --- End Forward/Rewind --- */}
-
-                <label style={{marginLeft: "10px"}}>
-                    Volume
-                    <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        value={volume}
-                        onChange={e => handleVolume(Number(e.target.value))}
-                        style={{marginLeft: "5px", verticalAlign: "middle"}}
-                    />
-                </label>
-                <button disabled style={{marginLeft: "10px"}}>
-                    Current: {formatTime(currentTime)}
-                </button>
-                <button disabled style={{marginLeft: "5px"}}>
-                    Total: {formatTime(duration)}
-                </button>
-
-                {/* --- Playback Speed Control --- */}
-                <label style={{marginLeft: "10px"}}>
-                    Speed
-                    <select
-                        style={{marginLeft: "5px"}}
-                        value={playbackRate}
-                        onChange={e => handlePlaybackRate(Number(e.target.value))}
-                    >
-                        {playbackRates.map(rate => (
-                            <option key={rate} value={rate}>
-                                {rate}x
-                            </option>
-                        ))}
-                    </select>
-                </label>
-                {/* --- End Playback Speed Control --- */}
-
-
-                <div style={{display: "inline-block", marginLeft: "10px"}}>
-                    <select style={{marginLeft: "10px"}} onChange={e => handleSubtitleSelect(Number(e.target.value))}>
-                        {subtitleTracks.map((track, idx) => (
-                            <option key={track.language || idx}
-                                    value={idx}>
-                                {track.label || track.language || `Subtitle ${idx + 1}`}
-                            </option>
-                        ))}
-                    </select>
-                    <button
-                        style={{marginLeft: "8px"}}
-                        onClick={handleToggleSubtitle}
-                    >
-                        {activeTrack === null ? "Start Subtitle" : "Stop Subtitle"}
-                    </button>
-
-                </div>
-                <button onClick={handlePrevVideo} style={{marginLeft: "10px"}}>Previous</button>
-                <button onClick={handleNextVideo} style={{marginLeft: "5px"}}>Next</button>
-                {error && (
-                    <div style={{color: "red", margin: "16px 0"}}>
-                        <div>Failed to load video.</div>
-                        <button onClick={handleRetry}>Retry</button>
-                    </div>
-                )}
-
-                <div
-                    className=" relative h-full w-full flex items-center justify-center overflow-hidden rounded-full bg-black bg-opacity-25 backdrop-blur-[33.33px] shadow-[inset_-1.22px_1.22px_1.22px_-2.43px_#ffffff59] p-4 ">
-                    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 448 512"
-                         className="text-white text-[34px] lg:text-[45px]" height="1em" width="1em"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"></path>
-                    </svg>
-                </div>
-
             </div>
         </div>
     );
 };
 
+
+// ... existing code ...
 export default VideoPlayer;
+
+// ... existing code ...

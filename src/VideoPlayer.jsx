@@ -1,6 +1,8 @@
 'use client'
 import React, {useEffect, useRef, useState} from "react";
-import {Loader, Loader2, Pause, Play} from "lucide-react";
+import {Loader, Loader2, Pause} from "lucide-react";
+import { IoMdPlay } from "react-icons/io";
+import {RiLoader5Fill} from "react-icons/ri";
 
 
 const VideoPlayer = () => {
@@ -283,13 +285,13 @@ const VideoPlayer = () => {
                 <div className="z-10 black_player_play_button cursor-pointer justify-center items-center absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" >
                     {play === "waiting" &&
                         <button className="w-[100px] z-10 h-[100px] rounded-full bg-black/60 backdrop-blur-lg flex items-center justify-center ">
-                            <Loader className={'text-white h-6 w-6 animate-spin '} size={40}  />
+                            <Loader className={'text-red-800 h-6 w-6 animate-spin '} size={40}  />
                         </button>
                     }
-
+                    <RiLoader5Fill className={'text-red-700 h-6 w-6 animate-spin '} size={40} />
                     {play === "play" &&
                         <button onClick={handlePlay} className="w-[100px] z-10 h-[100px] rounded-full bg-black/60 backdrop-blur-lg flex items-center justify-center ">
-                            <Play className={'text-white'} size={40} strokeWidth={1} />f
+                            <IoMdPlay className={'text-red-800'} size={40} strokeWidth={1} />
                         </button>
                     }
 

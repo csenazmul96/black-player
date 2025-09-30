@@ -1,6 +1,7 @@
- 'use client'
+'use client'
 import React, {useEffect, useRef, useState} from "react";
- import "video.js/dist/video-js.css";
+import {Loader, Loader2, Pause, Play} from "lucide-react";
+
 
 const VideoPlayer = () => {
     const [error, setError] = useState(false);
@@ -8,6 +9,7 @@ const VideoPlayer = () => {
     const videoRef = useRef(null);
     const [volume, setVolume] = useState(1);
     const [currentTime, setCurrentTime] = useState(0);
+    const [play, setPlay] = useState("");
     const [duration, setDuration] = useState(0);
     const [subtitleTracks, setSubtitleTracks] = useState([
         {
@@ -197,10 +199,72 @@ const VideoPlayer = () => {
     };
 
 
+    // Custom player controls
+    const onCustomWaiting = (e) => {
+        setPlay("waiting");
+    }
+    const onCustomEnded = (e) => {
+        setPlay("play");
+    }
+    const onCustomPlaying = (e) => {
+        setPlay("playing");
+    }
+    const onCustomPause = (e) => {
+        setPlay("play");
+    }
+    const onCanPlay = (e) => {
+        setPlay("play");
+    }
+    const onCustomPlay = (e) => {
+
+    }
+    const onCustomSeeking = (e) => {
+
+    }
+    const onCustomSeeked = (e) => {
+
+    }
+    const onCustomDurationChange = (e) => {
+
+    }
+    const onCustomProgress = (e) => {
+
+    }
+    const onCustomVolumeChange = (e) => {
+
+    }
+    const onCustomRateChange = (e) => {
+
+    }
+    const onCustomLoadedMetadataCapture = (e) => {
+
+    }
+    const onCustomDoubleClick = (e) => {
+
+    }
+    const onCustomContextMenu = (e) => {
+
+    }
+    const onCustomKeyDown = (e) => {
+
+    }
+    const onCustomMouseDown = (e) => {
+
+    }
+    const onCustomMouseUp = (e) => {
+
+    }
+    const onCustomMouseOver = (e) => {
+
+    }
+    const onCustomMouseLeave = (e) => {
+
+    }
+
     return (
-        <div className="video-container" key={currentVideo.src}>
+        <div>
             {videoList.length > 0 && (
-                <div style={{ marginBottom: "15px" }}>
+                <div style={{marginBottom: "15px"}}>
                     <label>
                         <select
                             onChange={e => setCurrentVideo(videoList[Number(e.target.value)])}
@@ -214,69 +278,88 @@ const VideoPlayer = () => {
                     </label>
                 </div>
             )}
+            <div className="w-max relative" key={currentVideo.src}>
 
-            <video
-                ref={videoRef}
-                id="my-player"
-                className="video-js"
-                controls
-                onPause={() => console.log("Video paused!")}
-                onTimeUpdate={handleTimeUpdate}
-                onLoadedMetadata={handleLoadedMetadata}
-                preload="auto"
-                onEnded={() => console.log("Video ended!")}
-                onWaiting={() => console.log("Video is waiting!")}
-                onCanPlay={() => console.log("Video can play!")}
-                onPlay={() => console.log("Video is playing!")}
-                onSeeking={() => console.log("Video is seeking!")}
-                onSeeked={() => console.log("Video seeked!")}
-                onDurationChange={() => console.log("Video duration changed!")}
-                onProgress={() => console.log("Video progress!")}
-                onVolumeChange={() => console.log("Video volume changed!")}
-                onRateChange={() => console.log("Video rate changed!")}
-                poster="//vjs.zencdn.net/v/oceans.png"
-                onError={handleVideoError}
-                onLoadedMetadataCapture={() => console.log("Video loaded metadata!")}
-                onDoubleClick={() => console.log("Video double clicked!")}
-                onContextMenu={() => console.log("Video context menu!")}
-                onKeyDown={(e) => console.log(e.key)}
-                onMouseDown={() => console.log("Video mouse down!")}
-                onMouseUp={() => console.log("Video mouse up!")}
-                onMouseOver={() => console.log("Video mouse over!")}
-                onMouseLeave={() => console.log("Video mouse Leave!")}
+                <div className="z-10 black_player_play_button cursor-pointer justify-center items-center absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" >
+                    {play === "waiting" &&
+                        <button className="w-[100px] z-10 h-[100px] rounded-full bg-black/60 backdrop-blur-lg flex items-center justify-center ">
+                            <Loader className={'text-white h-6 w-6 animate-spin '} size={40}  />
+                        </button>
+                    }
+
+                    {play === "play" &&
+                        <button onClick={handlePlay} className="w-[100px] z-10 h-[100px] rounded-full bg-black/60 backdrop-blur-lg flex items-center justify-center ">
+                            <Play className={'text-white'} size={40} strokeWidth={1} />f
+                        </button>
+                    }
+
+
+
+                </div>
+
+                <video
+                    ref={videoRef}
+                    id="black-player"
+                    className="video-js"
+                    onPause={onCustomPause}
+                    onPlaying={onCustomPlaying}
+                    onTimeUpdate={handleTimeUpdate}
+                    onLoadedMetadata={handleLoadedMetadata}
+                    preload="auto"
+                    onEnded={onCustomEnded}
+                    onWaiting={onCustomWaiting}
+                    onCanPlay={onCanPlay}
+                    onPlay={onCustomPlay}
+                    onSeeking={onCustomSeeking}
+                    onSeeked={onCustomSeeked}
+                    onDurationChange={onCustomDurationChange}
+                    onProgress={onCustomProgress}
+                    onVolumeChange={onCustomVolumeChange}
+                    onRateChange={onCustomRateChange}
+                    poster="//vjs.zencdn.net/v/oceans.png"
+                    onError={handleVideoError}
+                    onLoadedMetadataCapture={onCustomLoadedMetadataCapture}
+                    onDoubleClick={onCustomDoubleClick}
+                    onContextMenu={onCustomContextMenu}
+                    onKeyDown={onCustomKeyDown}
+                    onMouseDown={onCustomMouseDown}
+                    onMouseUp={onCustomMouseUp}
+                    onMouseOver={onCustomMouseOver}
+                    onMouseLeave={onCustomMouseLeave}
                 >
-                <source src={currentVideo.src} type={currentVideo.type} />
+                    <source src={currentVideo.src} type={currentVideo.type}/>
 
-                {subtitleTracks.map((subtitle, idx) => (
-                    <track
-                        key={`track-${idx}`}
-                        label={subtitle.label}
-                        kind="subtitles"
-                        src={subtitle.src}
-                        srcLang={subtitle.language}
-                    />
-                ))}
-                <p className="vjs-no-js">
-                    To view this video please enable JavaScript, and consider upgrading to a
-                    web browser that
-                    <a href="https://videojs.com/html5-video-support/" target="_blank">
-                        supports HTML5 video
-                    </a>
-                </p>
-            </video>
-            <input
-                type="range"
-                min="0"
-                max={duration}
-                value={currentTime}
-                step="0.1"
-                onChange={handleSeek}
-                style={{
-                    width: "100%",
-                    accentColor: "red",
-                    margin: "10px 0"
-                }}
-            />
+                    {subtitleTracks.map((subtitle, idx) => (
+                        <track
+                            key={`track-${idx}`}
+                            label={subtitle.label}
+                            kind="subtitles"
+                            src={subtitle.src}
+                            srcLang={subtitle.language}
+                        />
+                    ))}
+                    <p className="vjs-no-js">
+                        To view this video please enable JavaScript, and consider upgrading to a
+                        web browser that
+                        <a href="https://videojs.com/html5-video-support/" target="_blank">
+                            supports HTML5 video
+                        </a>
+                    </p>
+                </video>
+            </div>
+
+            <div className={"black_player_progress_outer"}>
+                <input
+                    className="black_player_progress_controller"
+                    type="range"
+                    min="0"
+                    max={duration}
+                    value={currentTime}
+                    step="0.1"
+                    onChange={handleSeek}
+
+                />
+            </div>
             <div className="player-controller">
                 <button onClick={handlePlay}>Play</button>
                 <button onClick={handlePause}>Pause</button>
@@ -284,16 +367,16 @@ const VideoPlayer = () => {
                 <button onClick={handleUnmute}>Unmute</button>
                 <button onClick={handleFullscreen}>Fullscreen</button>
                 {/* --- Rewind 15s --- */}
-                <button style={{ marginLeft: "10px" }} onClick={() => rewind(5)}>
+                <button style={{marginLeft: "10px"}} onClick={() => rewind(5)}>
                     « 15s
                 </button>
                 {/* --- Forward 15s --- */}
-                <button style={{ marginLeft: "3px" }} onClick={() => forward(5)}>
+                <button style={{marginLeft: "3px"}} onClick={() => forward(5)}>
                     15s »
                 </button>
                 {/* --- End Forward/Rewind --- */}
 
-                <label style={{ marginLeft: "10px" }}>
+                <label style={{marginLeft: "10px"}}>
                     Volume
                     <input
                         type="range"
@@ -302,21 +385,21 @@ const VideoPlayer = () => {
                         step="0.01"
                         value={volume}
                         onChange={e => handleVolume(Number(e.target.value))}
-                        style={{ marginLeft: "5px", verticalAlign: "middle" }}
+                        style={{marginLeft: "5px", verticalAlign: "middle"}}
                     />
                 </label>
-                <button disabled style={{ marginLeft: "10px" }}>
+                <button disabled style={{marginLeft: "10px"}}>
                     Current: {formatTime(currentTime)}
                 </button>
-                <button disabled style={{ marginLeft: "5px" }}>
+                <button disabled style={{marginLeft: "5px"}}>
                     Total: {formatTime(duration)}
                 </button>
 
                 {/* --- Playback Speed Control --- */}
-                <label style={{ marginLeft: "10px" }}>
+                <label style={{marginLeft: "10px"}}>
                     Speed
                     <select
-                        style={{ marginLeft: "5px" }}
+                        style={{marginLeft: "5px"}}
                         value={playbackRate}
                         onChange={e => handlePlaybackRate(Number(e.target.value))}
                     >
@@ -330,10 +413,8 @@ const VideoPlayer = () => {
                 {/* --- End Playback Speed Control --- */}
 
 
-
-
-                <div style={{ display: "inline-block", marginLeft: "10px" }}>
-                    <select style={{ marginLeft: "10px" }} onChange={e => handleSubtitleSelect(Number(e.target.value))}>
+                <div style={{display: "inline-block", marginLeft: "10px"}}>
+                    <select style={{marginLeft: "10px"}} onChange={e => handleSubtitleSelect(Number(e.target.value))}>
                         {subtitleTracks.map((track, idx) => (
                             <option key={track.language || idx}
                                     value={idx}>
@@ -342,25 +423,35 @@ const VideoPlayer = () => {
                         ))}
                     </select>
                     <button
-                        style={{ marginLeft: "8px" }}
+                        style={{marginLeft: "8px"}}
                         onClick={handleToggleSubtitle}
                     >
                         {activeTrack === null ? "Start Subtitle" : "Stop Subtitle"}
                     </button>
 
                 </div>
-                <button onClick={handlePrevVideo} style={{ marginLeft: "10px" }}>Previous</button>
-                <button onClick={handleNextVideo} style={{ marginLeft: "5px" }}>Next</button>
+                <button onClick={handlePrevVideo} style={{marginLeft: "10px"}}>Previous</button>
+                <button onClick={handleNextVideo} style={{marginLeft: "5px"}}>Next</button>
                 {error && (
-                    <div style={{ color: "red", margin: "16px 0" }}>
+                    <div style={{color: "red", margin: "16px 0"}}>
                         <div>Failed to load video.</div>
                         <button onClick={handleRetry}>Retry</button>
                     </div>
                 )}
+
+                <div
+                    className=" relative h-full w-full flex items-center justify-center overflow-hidden rounded-full bg-black bg-opacity-25 backdrop-blur-[33.33px] shadow-[inset_-1.22px_1.22px_1.22px_-2.43px_#ffffff59] p-4 ">
+                    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 448 512"
+                         className="text-white text-[34px] lg:text-[45px]" height="1em" width="1em"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"></path>
+                    </svg>
+                </div>
 
             </div>
         </div>
     );
 };
 
- export default VideoPlayer;
+export default VideoPlayer;

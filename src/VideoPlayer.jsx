@@ -7,6 +7,7 @@ import {
     FaPlay, FaPause, FaVolumeMute, FaVolumeUp, FaExpand, FaStepBackward, FaStepForward, FaForward, FaBackward
 } from "react-icons/fa";
 import { MdSubtitles } from "react-icons/md";
+import {IoPauseOutline} from "react-icons/io5";
 
 // Controller component for clarity
 const PlayerController = ({
@@ -181,6 +182,8 @@ const PlayerController = ({
 );
 
 const VideoPlayer = () => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isMuted, setIsMuted] = useState(false);
     const [error, setError] = useState(false);
     const videoRef = useRef(null);
     const [volume, setVolume] = useState(1);
@@ -240,8 +243,29 @@ const VideoPlayer = () => {
     // ---- All Handlers / Formatters -------------
     const handlePlay = () => videoRef.current && videoRef.current.play();
     const handlePause = () => videoRef.current && videoRef.current.pause();
-    const handleMute = () => videoRef.current && (videoRef.current.muted = true);
-    const handleUnmute = () => videoRef.current && (videoRef.current.muted = false);
+    const handleMute = () => {
+        if (videoRef.current) {
+            videoRef.current.muted = true;
+            setIsMuted(true);
+        }
+    };
+
+    useEffect(() => {
+        const v = videoRef.current;
+        if (!v) return;
+        function updateMute() {
+            setIsMuted(v.muted || v.volume === 0);
+        }
+        v.addEventListener("volumechange", updateMute);
+        return () => v.removeEventListener("volumechange", updateMute);
+    }, [videoRef]);
+
+    const handleUnmute = () => {
+        if (videoRef.current) {
+            videoRef.current.muted = false;
+            setIsMuted(false);
+        }
+    };
     const handleFullscreen = () => {
         if (videoRef.current?.requestFullscreen) videoRef.current.requestFullscreen();
     };
@@ -360,7 +384,7 @@ const VideoPlayer = () => {
                 style={{ maxWidth: 640, minWidth: 320 }}
                 onMouseMove={handlePlayerMouseMove}
                 onMouseLeave={handlePlayerMouseLeave}
-                tabIndex={0} // for keyboard focus-out hiding controls
+                tabIndex={0}
             >
                 {/* Play overlay (unchanged, shortened for brevity) */}
                 <div className="z-10 black_player_play_button cursor-pointer justify-center items-center absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" >
